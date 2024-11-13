@@ -1,16 +1,71 @@
-# action.yml
-name: "Hello World"
-description: "Greet someone and record the time"
+name: "Enhanced Complex Action"
+description: "Performs an operation based on various input types."
+
 inputs:
-  who-to-greet: # id of input
-    description: "Who to greet"
+  number-one:
+    description: "The first number"
     required: true
-    default: "World"
+    default: "5"
+
+  number-two:
+    description: "The second number"
+    required: true
+    default: "10"
+
+  operation:
+    description: "Operation to perform (sum, subtract, multiply, divide)"
+    required: true
+    default: "sum"
+
+  show-details:
+    description: "Show detailed output"
+    required: false
+    default: "false"
+
 outputs:
-  time: # id of output
-    description: "The time we greeted you"
+  final-result:
+    description: "The result of the chosen operation"
+    value: ${{ steps.calculate.outputs.result }}
+
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - ${{ inputs.who-to-greet }}
+  using: "composite"
+  steps:
+    - name: Perform Calculation
+      id: calculate
+      run: |
+        # Converting inputs to integers and processing strings
+        num1=${{ inputs.number-one }}
+        num2=${{ inputs.number-two }}
+        operation="${{ inputs.operation }}"
+        show_details="${{ inputs.show-details }}"
+
+        # Perform the chosen operation
+        case "$operation" in
+          "sum")
+            result=$((num1 + num2))
+            ;;
+          "subtract")
+            result=$((num1 - num2))
+            ;;
+          "multiply")
+            result=$((num1 * num2))
+            ;;
+          "divide")
+            if [ "$num2" -ne 0 ]; then
+              result=$((num1 / num2))
+            else
+              result="undefined (division by zero)"
+            fi
+            ;;
+          *)
+            result="invalid operation"
+            ;;
+        esac
+
+        # Conditional output based on `show-details`
+        if [ "$show_details" = "true" ]; then
+          echo "Detailed Result: Operation $operation on $num1 and $num2 gives $result"
+        fi
+
+        echo "result=$result" >> $GITHUB_OUTPUT
+      shell: bash

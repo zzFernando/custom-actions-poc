@@ -1,0 +1,46 @@
+name: Test Enhanced Complex Action
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      number-one:
+        description: "Enter the first number"
+        required: true
+        default: "7"
+      number-two:
+        description: "Enter the second number"
+        required: true
+        default: "3"
+      operation:
+        type: choice
+        description: "Choose the operation"
+        options:
+          - sum
+          - subtract
+          - multiply
+          - divide
+        default: sum
+      show-details:
+        type: boolean
+        description: "Show detailed output"
+        default: false
+
+jobs:
+  complex_action_job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Enhanced Complex Action
+        id: complex
+        uses: zzfernando/custom-actions-poc@1.0.5
+        with:
+          number-one: ${{ github.event.inputs.number-one }}
+          number-two: ${{ github.event.inputs.number-two }}
+          operation: ${{ github.event.inputs.operation }}
+          show-details: ${{ github.event.inputs['show-details'] }}
+
+      - name: Show Final Result
+        run: echo "The final result from action is ${{ steps.complex.outputs.final-result }}"
