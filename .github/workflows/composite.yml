@@ -7,11 +7,11 @@ on:
     inputs:
       number-one:
         description: "Enter the first number"
-        required: true
+        required: false
         default: "7"
       number-two:
         description: "Enter the second number"
-        required: true
+        required: false
         default: "3"
       operation:
         type: choice
@@ -37,10 +37,10 @@ jobs:
         id: complex
         uses: zzfernando/custom-actions-poc@1.0.5
         with:
-          number-one: ${{ github.event.inputs.number-one }}
-          number-two: ${{ github.event.inputs.number-two }}
-          operation: ${{ github.event.inputs.operation }}
-          show-details: ${{ github.event.inputs['show-details'] }}
+          number-one: ${{ github.event.inputs.number-one || '7' }} # Default is 7
+          number-two: ${{ github.event.inputs.number-two || '3' }} # Default is 3
+          operation: ${{ github.event.inputs.operation || 'sum' }} # Default is sum
+          show-details: ${{ github.event.inputs['show-details'] || 'false' }} # Default is false
 
       - name: Show Final Result
         run: echo "The final result from action is ${{ steps.complex.outputs.final-result }}"
