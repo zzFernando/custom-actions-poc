@@ -1,3 +1,4 @@
+name: Docker Custom Action Example
 on: [push]
 
 jobs:

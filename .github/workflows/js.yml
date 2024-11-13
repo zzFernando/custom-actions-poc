@@ -1,4 +1,4 @@
-name: Test custom action
+name: JS Custom Action Example
 
 on:
   push:
