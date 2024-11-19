@@ -1,71 +1,34 @@
-name: "Enhanced Complex Action"
-description: "Performs an operation based on various input types."
-
+name: "Create Repository with Lambda Template"
+description: "Creates a GitHub repository from a template with Lambda code and deployment workflows"
 inputs:
-  number-one:
-    description: "The first number"
+  repo-name:
+    description: "The name of the new repository"
     required: true
-    default: "5"
-
-  number-two:
-    description: "The second number"
+    default: ""
+  template-url:
+    description: "URL of the template repository"
     required: true
-    default: "10"
-
-  operation:
-    description: "Operation to perform (sum, subtract, multiply, divide)"
+    default: ""
+  org:
+    description: "Organization or username for the repository"
     required: true
-    default: "sum"
-
-  show-details:
-    description: "Show detailed output"
-    required: false
-    default: "false"
-
+    default: ""
 outputs:
-  final-result:
-    description: "The result of the chosen operation"
-    value: ${{ steps.calculate.outputs.result }}
+  repo-url:
+    description: "URL of the newly created repository"
+    value: ${{ steps.create-repo.outputs.repo-url }}
 
 runs:
   using: "composite"
   steps:
-    - name: Perform Calculation
-      id: calculate
+    - name: Authenticate GitHub CLI
       run: |
-        # Converting inputs to integers and processing strings
-        num1=${{ inputs.number-one }}
-        num2=${{ inputs.number-two }}
-        operation="${{ inputs.operation }}"
-        show_details="${{ inputs.show-details }}"
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      shell: bash
 
-        # Perform the chosen operation
-        case "$operation" in
-          "sum")
-            result=$((num1 + num2))
-            ;;
-          "subtract")
-            result=$((num1 - num2))
-            ;;
-          "multiply")
-            result=$((num1 * num2))
-            ;;
-          "divide")
-            if [ "$num2" -ne 0 ]; then
-              result=$((num1 / num2))
-            else
-              result="undefined (division by zero)"
-            fi
-            ;;
-          *)
-            result="invalid operation"
-            ;;
-        esac
-
-        # Conditional output based on `show-details`
-        if [ "$show_details" = "true" ]; then
-          echo "Detailed Result: Operation $operation on $num1 and $num2 gives $result"
-        fi
-
-        echo "result=$result" >> $GITHUB_OUTPUT
+    - name: Create Repository from Template
+      run: |
+        gh repo create ${{ inputs.org }}/${{ inputs.repo-name }} --template "${{ inputs.template-url }}" --public
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: bash
