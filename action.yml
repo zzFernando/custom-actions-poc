@@ -4,34 +4,30 @@ inputs:
   repo-name:
     description: "The name of the new repository"
     required: true
-    default: ""
   template-url:
     description: "URL of the template repository"
     required: true
-    default: ""
   org:
     description: "Organization or username for the repository"
     required: true
-    default: ""
   github-token:
     description: "GitHub Token for authentication"
     required: true
-outputs:
-  repo-url:
-    description: "URL of the newly created repository"
-    value: ${{ steps.create-repo.outputs.repo-url }}
-
 runs:
   using: "composite"
   steps:
-    - name: Authenticate GitHub CLI
-      run: |
-        gh auth setup-git
-      shell: bash
-
     - name: Create Repository from Template
-      run: |
-        gh repo create ${{ inputs.org }}/${{ inputs.repo-name }} --template "${{ inputs.template-url }}" --public
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const [owner, repo] = '${{ inputs.template-url }}'.replace('https://github.com/', '').split('/');
+          const newRepo = await github.repos.createUsingTemplate({
+            template_owner: owner,
+            template_repo: repo,
+            name: '${{ inputs.repo-name }}',
+            owner: '${{ inputs.org }}',
+            private: false,
+          });
+          core.setOutput("repo-url", newRepo.data.html_url);
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-      shell: bash
