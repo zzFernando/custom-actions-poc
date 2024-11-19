@@ -20,14 +20,15 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const [owner, repo] = '${{ inputs.template-url }}'.replace('https://github.com/', '').split('/');
-          const newRepo = await github.repos.createUsingTemplate({
+          const templateUrl = '${{ inputs.template-url }}';
+          const [owner, repo] = templateUrl.replace('https://github.com/', '').split('/');
+          const response = await github.rest.repos.createUsingTemplate({
             template_owner: owner,
             template_repo: repo,
             name: '${{ inputs.repo-name }}',
             owner: '${{ inputs.org }}',
-            private: false,
+            private: false
           });
-          core.setOutput("repo-url", newRepo.data.html_url);
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+          core.setOutput("repo-url", response.data.html_url);
+        env:
+          GITHUB_TOKEN: ${{ inputs.github-token }}
