@@ -30,5 +30,5 @@ runs:
             private: false
           });
           core.setOutput("repo-url", response.data.html_url);
-        env:
-          GITHUB_TOKEN: ${{ inputs.github-token }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
