@@ -13,3 +13,4 @@ jobs:
           repo-name: "lambda-repo-test"
           template-url: "https://github.com/zzfernando/custom-actions-poc"
           org: "zzfernando"
+          github-token: ${{ secrets.GITHUB_TOKEN }}

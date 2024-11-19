@@ -13,6 +13,9 @@ inputs:
     description: "Organization or username for the repository"
     required: true
     default: ""
+  github-token:
+    description: "GitHub Token for authentication"
+    required: true
 outputs:
   repo-url:
     description: "URL of the newly created repository"
@@ -30,5 +33,5 @@ runs:
       run: |
         gh repo create ${{ inputs.org }}/${{ inputs.repo-name }} --template "${{ inputs.template-url }}" --public
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       shell: bash
