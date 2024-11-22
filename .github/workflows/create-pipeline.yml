@@ -12,6 +12,6 @@ jobs:
         uses: zzfernando/custom-actions-poc@main
         with:
           repo-name: "lambda-repo-test"
-          template-url: "https://github.com/zzfernando/custom-actions-poc"
+          template-url: "https://github.com/zzfernando/custom-actions-poc/templates"
           org: "zzfernando"
           github-token: ${{ secrets.ACTIONS_SECRET }}
