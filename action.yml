@@ -16,31 +16,34 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Extract Owner and Repo from Template URL
+      id: extract
+      shell: bash
+      run: |
+        template_url="${{ inputs.template-url }}"
+        # Extract the owner and repo from the template URL
+        owner_repo=$(echo "$template_url" | sed -E 's|https://github.com/([^/]+)/([^/]+)|\1 \2|')
+        echo "owner=$(echo $owner_repo | cut -d' ' -f1)" >> $GITHUB_ENV
+        echo "repo=$(echo $owner_repo | cut -d' ' -f2)" >> $GITHUB_ENV
+        echo "Template Owner: $(echo $owner_repo | cut -d' ' -f1)"
+        echo "Template Repo: $(echo $owner_repo | cut -d' ' -f2)"
+
     - name: Create Repository from Template
-      uses: actions/github-script@v6
-      with:
-        script: |
-          // Get inputs from the context
-          const templateUrl = core.getInput('template-url');
-          const repoName = core.getInput('repo-name');
-          const org = core.getInput('org');
-
-          // Extract owner and repo from template URL
-          const [owner, repo] = templateUrl.replace('https://github.com/', '').split('/');
-
-          try {
-            const response = await github.rest.repos.createUsingTemplate({
-              template_owner: owner,
-              template_repo: repo,
-              name: repoName,
-              owner: org,
-              private: true,
-            });
-
-            // Set output with the new repository URL
-            core.setOutput("repo-url", response.data.html_url);
-          } catch (error) {
-            core.setFailed(`Failed to create repository: ${error.message}`);
-          }
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/$owner/$repo/generate \
+          -d '{
+            "name": "'"${{ inputs.repo-name }}"'",
+            "owner": "'"${{ inputs.org }}"'",
+            "private": true
+          }'
+
+    - name: Output Repository URL
+      shell: bash
+      run: |
+        echo "Repository created: https://github.com/${{ inputs.org }}/${{ inputs.repo-name }}"
