@@ -34,7 +34,7 @@ runs:
               template_repo: repo,
               name: repoName,
               owner: org,
-              private: false,
+              private: true,
             });
 
             // Set output with the new repository URL
