@@ -6,8 +6,7 @@ on:
 jobs:
   create-repo:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    permissions: write-all
     steps:
       - name: Use Composite Action
         uses: zzfernando/custom-actions-poc@main
@@ -15,4 +14,4 @@ jobs:
           repo-name: "lambda-repo-test"
           template-url: "https://github.com/zzfernando/custom-actions-poc"
           org: "zzfernando"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.ACTIONS_SECRET }}
