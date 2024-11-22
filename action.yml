@@ -21,7 +21,6 @@ runs:
       shell: bash
       run: |
         template_url="${{ inputs.template-url }}"
-        # Extract the owner and repo from the template URL
         owner_repo=$(echo "$template_url" | sed -E 's|https://github.com/([^/]+)/([^/]+)|\1 \2|')
         echo "owner=$(echo $owner_repo | cut -d' ' -f1)" >> $GITHUB_ENV
         echo "repo=$(echo $owner_repo | cut -d' ' -f2)" >> $GITHUB_ENV
@@ -33,7 +32,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
-        curl -X POST \
+        response=$(curl -s -X POST \
           -H "Authorization: token $GITHUB_TOKEN" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/$owner/$repo/generate \
@@ -41,9 +40,27 @@ runs:
             "name": "'"${{ inputs.repo-name }}"'",
             "owner": "'"${{ inputs.org }}"'",
             "private": false
-          }'
+          }')
 
-    - name: Output Repository URL
+        echo "Response: $response"
+
+        repo_url=$(echo "$response" | jq -r '.html_url')
+        repo_id=$(echo "$response" | jq -r '.id')
+
+        if [ "$repo_url" == "null" ] || [ -z "$repo_url" ]; then
+          echo "Failed to extract repository URL. Response: $response"
+          exit 1
+        fi
+
+        echo "repo_url=$repo_url" >> $GITHUB_ENV
+        echo "repo_id=$repo_id" >> $GITHUB_ENV
+
+        echo "Repository URL: $repo_url"
+        echo "Repository ID: $repo_id"
+
+    - name: Output Repository Information
       shell: bash
       run: |
-        echo "Repository created: https://github.com/${{ inputs.org }}/${{ inputs.repo-name }}"
+        echo "Repository successfully created:"
+        echo "URL: $repo_url"
+        echo "ID: $repo_id"
