@@ -2,16 +2,30 @@ name: Create Lambda Repository
 
 on:
   workflow_dispatch:
+    inputs:
+      repo-name:
+        description: "The name of the new repository"
+        required: true
+        default: "lambda-repo-test"
+      template-url:
+        description: "URL of the template repository"
+        required: true
+        default: "https://github.com/zzfernando/custom-actions-poc"
+      org:
+        description: "Organization or username for the repository"
+        required: true
+        default: "zzfernando"
 
 jobs:
   create-repo:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write
     steps:
       - name: Use Composite Action
         uses: zzfernando/custom-actions-poc@main
         with:
-          repo-name: "lambda-repo-test"
-          template-url: "https://github.com/zzfernando/custom-actions-poc"
-          org: "zzfernando"
+          repo-name: ${{ inputs.repo-name }}
+          template-url: ${{ inputs.template-url }}
+          org: ${{ inputs.org }}
           github-token: ${{ secrets.ACTIONS_SECRET }}
