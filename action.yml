@@ -20,9 +20,7 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const core = require('@actions/core');
-
-          // Get inputs
+          // Get inputs from the context
           const templateUrl = core.getInput('template-url');
           const repoName = core.getInput('repo-name');
           const org = core.getInput('org');
