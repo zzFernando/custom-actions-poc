@@ -40,7 +40,7 @@ runs:
           -d '{
             "name": "'"${{ inputs.repo-name }}"'",
             "owner": "'"${{ inputs.org }}"'",
-            "private": true
+            "private": false
           }'
 
     - name: Output Repository URL
